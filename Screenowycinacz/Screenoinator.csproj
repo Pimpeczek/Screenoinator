@@ -5,9 +5,9 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{609C2B73-FE97-4ACF-89A7-6AB776497A9B}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Screenowycinacz</RootNamespace>
-    <AssemblyName>Screenowycinacz</AssemblyName>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Screenoinator</RootNamespace>
+    <AssemblyName>Screenoinator</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -83,6 +83,7 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
