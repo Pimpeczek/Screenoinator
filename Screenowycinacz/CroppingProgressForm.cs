@@ -14,7 +14,7 @@ namespace Screenoinator
         private Rectangle cutRectangle;
         private string outputFolder;
         bool doWork;
-        public CroppingProgressForm()
+        public CroppingProgressForm(List<string> files, Rectangle cutRectangle, string outputFolder)
         {
             InitializeComponent();
             loadingWorker = new BackgroundWorker
@@ -30,10 +30,6 @@ namespace Screenoinator
             loadingWorker.ProgressChanged +=
                 new ProgressChangedEventHandler(
             loadingWorker_ProgressChanged);
-        }
-
-        public void Go(List<string> files, Rectangle cutRectangle, string outputFolder)
-        {
             doWork = true;
             this.files = files;
             this.cutRectangle = cutRectangle;
@@ -42,7 +38,6 @@ namespace Screenoinator
             progressBar1.Value = 0;
             progressBar1.Maximum = files.Count;
             loadingWorker.RunWorkerAsync();
-
         }
         
 
