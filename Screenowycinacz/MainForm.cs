@@ -14,14 +14,6 @@ namespace Screenoinator
         private List<string> files;
         private Rectangle cutRectangle;
         private Bitmap currentBitmap;
-        private Stopwatch stopwatchX;
-        private Stopwatch stopwatchY;
-        private Stopwatch stopwatchWidth;
-        private Stopwatch stopwatchHeight;
-        private int counterX = 0;
-        private int counterY = 0;
-        private int counterWidth = 0;
-        private int counterHeight = 0;
         private int incrementDivider = 5;
         private int patience = 300;
         private int speedDivider = 200;
@@ -40,13 +32,9 @@ namespace Screenoinator
         Point virtualScreenOffset;
         int screenshotsTaken;
         int screenshotsSaved;
-        NumericUpDown previousNumUD;
-        int previousNumUDDirection;
-        Stopwatch NumUDStopwatch;
         public MainForm()
         {
             InitializeComponent();
-            NumUDStopwatch = new Stopwatch();
             virtualScreenOffset = new Point();
             screenshotsTaken = 0;
             screenshotsSaved = 0;
@@ -54,12 +42,26 @@ namespace Screenoinator
             mouseDown = false;
             cutRectangle = new Rectangle(0, 0, 100, 100);
             files = new List<string>();
-            previousNumUDDirection = 0;
-            InitializeStopwatches();
             InitializeOpenFileDialog();
             InitializeWorker();
             InitializeTooltips();
+            InitializeNumUDs();
             UpdateButtons();
+        }
+
+        private void InitializeNumUDs()
+        {
+            NumericUpDownAcceleration[] numericUpDownAccelerations = new NumericUpDownAcceleration[4]
+            {
+                new NumericUpDownAcceleration(1, 10),
+                new NumericUpDownAcceleration(1, 20),
+                new NumericUpDownAcceleration(1, 40),
+                new NumericUpDownAcceleration(1, 80)
+            };
+            numUD_height.Accelerations.AddRange(numericUpDownAccelerations);
+            numUD_width.Accelerations.AddRange(numericUpDownAccelerations);
+            numUD_X.Accelerations.AddRange(numericUpDownAccelerations);
+            numUD_Y.Accelerations.AddRange(numericUpDownAccelerations);
         }
 
         private void InitializeWorker()
@@ -86,18 +88,6 @@ namespace Screenoinator
             toolTip1.SetToolTip(button_output, "Folder to store the cropped screenshots.");
             toolTip1.SetToolTip(button_outputAuto, "Folder to store the cropped screenshots.");
             toolTip1.SetToolTip(button_baseScreen, "Base screenshot is used for selecting the observed region.");
-        }
-
-        private void InitializeStopwatches()
-        {
-            stopwatchX = new Stopwatch();
-            stopwatchX.Restart();
-            stopwatchY = new Stopwatch();
-            stopwatchY.Restart();
-            stopwatchWidth = new Stopwatch();
-            stopwatchWidth.Restart();
-            stopwatchHeight = new Stopwatch();
-            stopwatchHeight.Restart();
         }
 
         private void InitializeOpenFileDialog()
@@ -372,80 +362,34 @@ namespace Screenoinator
         {
             if (mouseDown || currentBitmap == null)
                 return;
-            if (NumUDStopwatch.ElapsedMilliseconds < patience)
-            {
-                counterWidth += Math.Max(currentBitmap.Width / speedDivider, 1);
-            }
-            else
-            {
-                counterWidth = 0;
-            }
-            numUD_width.Increment = 1 + Math.Min(counterWidth / incrementDivider, currentBitmap.Width / speedPart);
             UpdatePositions();
             UpdateRectangle();
             ShowImage(currentBitmap);
-            stopwatchWidth.Restart();
-            Console.WriteLine(numUD_width.Increment);
         }
 
         private void NumUD_height_ValueChanged(object sender, EventArgs e)
         {
             if (mouseDown || currentBitmap == null)
                 return;
-            if (NumUDStopwatch.ElapsedMilliseconds < patience)
-            {
-                counterHeight += Math.Max(currentBitmap.Height / speedDivider, 1);
-            }
-            else
-            {
-                counterHeight = 0;
-            }
-            numUD_height.Increment = 1 + Math.Min(counterHeight / incrementDivider, currentBitmap.Height / speedPart);
             UpdatePositions();
             UpdateRectangle();
             ShowImage(currentBitmap);
-            stopwatchHeight.Restart();
-            Console.WriteLine(currentBitmap.Height / speedPart);
-            Console.WriteLine(numUD_height.Increment);
         }
 
         private void NumUD_X_ValueChanged(object sender, EventArgs e)
         {
             if (mouseDown || currentBitmap == null)
                 return;
-            if (NumUDStopwatch.ElapsedMilliseconds < patience)
-            {
-                counterX += Math.Max(currentBitmap.Width / speedDivider, 1);
-            }
-            else
-            {
-                counterX = 0;
-            }
-            numUD_X.Increment = 1 + Math.Min(counterX / incrementDivider, currentBitmap.Width / speedPart);
             UpdateRectangle();
             ShowImage(currentBitmap);
-            stopwatchX.Restart();
         }
 
         private void NumUD_Y_ValueChanged(object sender, EventArgs e)
         {
             if (mouseDown || currentBitmap == null)
                 return;
-
-
-
-            if (NumUDStopwatch.ElapsedMilliseconds < patience)
-            {
-                counterY += Math.Max(currentBitmap.Height / speedDivider, 1);
-            }
-            else
-            {
-                counterY = 0;
-            }
-            numUD_Y.Increment = 1 + Math.Min(counterY / incrementDivider, currentBitmap.Height / speedPart);
             UpdateRectangle();
             ShowImage(currentBitmap);
-            stopwatchY.Restart();
         }
 
         private void Pb_overview_SizeChanged(object sender, EventArgs e)
