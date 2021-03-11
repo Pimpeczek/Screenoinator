@@ -1,6 +1,6 @@
-﻿namespace Screenowycinacz
+﻿namespace Screenoinator
 {
-    partial class Form2
+    partial class CroppingProgressForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CroppingProgressForm));
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.button_stop = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -77,6 +77,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(318, 87);
+            this.ControlBox = false;
             this.Controls.Add(this.button_exit);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button_stop);

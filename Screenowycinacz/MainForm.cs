@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.Diagnostics;
 using System.IO;
-using System.Drawing;
 using System.Windows.Forms;
-using PiwotToolsLib.PGraphics;
-namespace Screenowycinacz
+
+namespace Screenoinator
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private OpenFileDialog openFileDialog1;
         private List<string> files;
@@ -37,12 +35,13 @@ namespace Screenowycinacz
         private float zoom;
         bool screenshotsRunning;
         private BackgroundWorker screeningWorker;
+        private Bitmap previousSmlScreen;
         private Bitmap previousScreen;
         bool hasBasicScreenshot;
         Point virtualScreenOffset;
         int screensTaken;
         int screensSaved;
-        public Form1()
+        public MainForm()
         {
             scale = 1;
             mouseDown = false;
@@ -165,13 +164,32 @@ namespace Screenowycinacz
             numUD_Y.Maximum = currentBitmap.Height - numUD_height.Value;
         }
 
+        public Bitmap ResizeToFit(Bitmap bitmap, int width, int height)
+        {
+            if (bitmap == null)
+            {
+                return null;
+            }
+            float dRatio = (float)width / (float)height;
+            float bRatio = (float)bitmap.Width / (float)bitmap.Height;
+            if (dRatio < bRatio)
+            {
+                return new Bitmap(bitmap, width, (int)(width / bRatio));
+            }
+            else
+            {
+                return new Bitmap(bitmap, (int)(height * bRatio), (int)(height));
+            }
+
+        }
+
         private void ShowImage(Bitmap b)
         {
             if (b == null)
                 return;
             try
             {
-                this.pb_overview.BackgroundImage = Bitmaper.ResizeToFit(b, this.pb_overview.Width, this.pb_overview.Height);
+                this.pb_overview.BackgroundImage = ResizeToFit(b, this.pb_overview.Width, this.pb_overview.Height);
                 ApplyFrame();
             }
             catch
@@ -207,6 +225,8 @@ namespace Screenowycinacz
                 g.DrawRectangle(pen, fRec);
             }
             pb_overview.Image = b;
+            label_spos.Text = $"Region position: {cutRectangle.X}x{cutRectangle.Y}";
+            label_ssize.Text = $"Region size: {cutRectangle.Width}x{cutRectangle.Height}";
         }
 
         private void Button_clear_Click(object sender, EventArgs e)
@@ -242,9 +262,10 @@ namespace Screenowycinacz
 
         private void Button_process_Click(object sender, EventArgs e)
         {
-            var m = new Form2();
+            var m = new CroppingProgressForm();
             m.Show();
             m.Go(files, cutRectangle, outputFolder);
+            this.Enabled = false;
         }
 
         private void NumUD_width_ValueChanged(object sender, EventArgs e)
@@ -425,6 +446,9 @@ namespace Screenowycinacz
             screensSaved = 0;
             label_taken.Text = $"Screenshots taken: {screensTaken}";
             label_saved.Text = $"Screenshots saved: {screensSaved}";
+            
+            pb_cropped.Visible = true;
+            while (screeningWorker.IsBusy) { }
             screeningWorker.RunWorkerAsync();
         }
 
@@ -435,10 +459,15 @@ namespace Screenowycinacz
 
         void StopRunningScreenshots()
         {
-
+            if(screeningWorker.IsBusy)
+            {
+                screeningWorker.CancelAsync();
+            }
             screenshotsRunning = false;
             ShowCurrentImage();
             UpdateButtons();
+            pb_cropped.Visible = false;
+            
         }
 
         Bitmap TakeScreenshot()
@@ -461,6 +490,17 @@ namespace Screenowycinacz
             return bmp;
         }
 
+        public Bitmap StreachToSize(Bitmap bitmap, int width, int height)
+        {
+            Bitmap result = new Bitmap(width, height);
+            using (Graphics g = Graphics.FromImage(result))
+            {
+                g.DrawImage(bitmap, new Rectangle(0, 0, width, height), 0, 0, bitmap.Width, bitmap.Height, GraphicsUnit.Pixel);
+            }
+
+            return result;
+        }
+
         private void screeningWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             while(screenshotsRunning)
@@ -476,33 +516,31 @@ namespace Screenowycinacz
                             cutRectangle.Width, 
                             cutRectangle.Height)
                         );
-                    var sml = Bitmaper.StreachToSize(bmp, bmp.Width / 100, bmp.Height / 100);
+                    var sml = StreachToSize(bmp, bmp.Width / 100, bmp.Height / 100);
                     screensTaken += 1;
-                    
-                    if (previousScreen != null)
+                    if (previousSmlScreen == null || Compare(sml, previousSmlScreen) > numUD_treshold.Value)
                     {
-                        if (Compare(sml, previousScreen) > numUD_treshold.Value)
-                        {
+
+                        if (previousSmlScreen != null)
+                            previousSmlScreen.Dispose();
+                        if (previousScreen != null)
                             previousScreen.Dispose();
-                            previousScreen = sml;
-                            screensSaved += 1;
-                            var timeStr = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-                            bmp.Save(Path.Combine(outputFolder, $"{timeStr}.png"));
-                        }
+                        previousScreen = bmp;
+                        previousSmlScreen = sml;
+                        screensSaved += 1;
+                        var timeStr = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                        bmp.Save(Path.Combine(outputFolder, $"{timeStr}.png"));
                     }
-                    else
-                    {
-                        previousScreen = sml;
-                    }
-                    bmp.Dispose();
-                }
-                else
-                {
-                    screeningWorker.Dispose();
+                    
+
+                    
                 }
                 screeningWorker.ReportProgress(0);
-                System.Threading.Thread.Sleep((int)numUD_interval.Value * 1000);
+                for(int i = (int)numUD_interval.Value * 10; screenshotsRunning && i >= 0; i--)
+                    System.Threading.Thread.Sleep(100);
             }
+
+            screeningWorker.Dispose();
         }
 
         private int Compare(Bitmap b1, Bitmap b2)
@@ -528,6 +566,7 @@ namespace Screenowycinacz
         {
             label_taken.Text = $"Screenshots taken: {screensTaken}";
             label_saved.Text = $"Screenshots saved: {screensSaved}";
+            pb_cropped.Image = previousScreen;
         }
 
         // This event handler deals with the results of the background operation.
@@ -552,7 +591,15 @@ namespace Screenowycinacz
         private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (tabControl.SelectedIndex == 0)
+            {
                 StopRunningScreenshots();
+                pb_cropped.Image = null;
+                if(previousScreen != null)
+                    previousScreen.Dispose();
+                if (previousScreen != null)
+                    previousSmlScreen.Dispose();
+                
+            }
         }
 
         private void Pb_overview_MouseEnter(object sender, EventArgs e)

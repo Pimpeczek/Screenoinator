@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Screenowycinacz
+namespace Screenoinator
 {
-    public partial class Form2 : Form
+    public partial class CroppingProgressForm : Form
     {
-        private BackgroundWorker loadingWorker;
+        private readonly BackgroundWorker loadingWorker;
         private List<string> files;
         private Rectangle cutRectangle;
         private string outputFolder;
         bool doWork;
-        public Form2()
+        public CroppingProgressForm()
         {
             InitializeComponent();
             loadingWorker = new BackgroundWorker
@@ -84,10 +81,12 @@ namespace Screenowycinacz
         private void loadingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             button_exit.Enabled = true;
+            button_stop.Enabled = false;
         }
 
         private void Button_exit_Click(object sender, EventArgs e)
         {
+            Program.MainWindow.Enabled = true;
             this.Close();
         }
 
