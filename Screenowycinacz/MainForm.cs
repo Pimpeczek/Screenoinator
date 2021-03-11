@@ -10,38 +10,44 @@ namespace Screenoinator
 {
     public partial class MainForm : Form
     {
-        private OpenFileDialog ofd;
-        private List<string> files;
-        private Rectangle cutRectangle;
-        private Bitmap currentBitmap;
-        private int incrementDivider = 5;
-        private int patience = 300;
-        private int speedDivider = 200;
-        private int speedPart = 2;
-        private string outputFolder = null;
-        private float scale;
-        bool mouseDown;
-        bool mouseOverPicturebox;
+        #region Class variables
+        private Rectangle selectionRectangle;
         private Point selectionBeginPoint;
         private Point selectionEndPoint;
-        bool screenshotWorkerDoWork;
+        private Point virtualScreenOffset;
+        private OpenFileDialog ofd;
         private BackgroundWorker screenshotWorker;
         private Bitmap previousSmlScreen;
         private Bitmap previousScreen;
-        bool hasBasicScreenshot;
-        Point virtualScreenOffset;
-        int screenshotsTaken;
-        int screenshotsSaved;
+        private Bitmap currentBitmap;
+        private List<string> filesToCrop;
+        private string outputFolder;
+        private float overviewScale;
+        private int screenshotsTaken;
+        private int screenshotsSaved;
+        private bool screenshotWorkerDoWork;
+        private bool mouseDown;
+        private bool mouseOverPicturebox;
+        private bool hasBasicScreenshot;
+        #endregion
+
+        #region Initialization
         public MainForm()
         {
             InitializeComponent();
             virtualScreenOffset = new Point();
+            
+            
+            selectionRectangle = new Rectangle(0, 0, 100, 100);
+            filesToCrop = new List<string>();
+            outputFolder = null;
+            overviewScale = 1;
             screenshotsTaken = 0;
             screenshotsSaved = 0;
-            hasBasicScreenshot = false;
+            screenshotWorkerDoWork = false;
             mouseDown = false;
-            cutRectangle = new Rectangle(0, 0, 100, 100);
-            files = new List<string>();
+            mouseOverPicturebox = false;
+            hasBasicScreenshot = false;
             InitializeOpenFileDialog();
             InitializeWorker();
             InitializeTooltips();
@@ -102,46 +108,19 @@ namespace Screenoinator
             };
         }
 
+        #endregion
+
+        #region Methods
+
         private void UpdateRectangle()
         {
-            cutRectangle.X = (int)numUD_X.Value;
-            cutRectangle.Y = (int)numUD_Y.Value;
-            cutRectangle.Width = (int)numUD_width.Value;
-            cutRectangle.Height = (int)numUD_height.Value;
+            selectionRectangle.X = (int)numUD_X.Value;
+            selectionRectangle.Y = (int)numUD_Y.Value;
+            selectionRectangle.Width = (int)numUD_width.Value;
+            selectionRectangle.Height = (int)numUD_height.Value;
         }
 
-        private void Button_select_Click(object sender, EventArgs e)
-        {
-            DialogResult dr = ofd.ShowDialog();
-            if (dr == DialogResult.OK)
-            {
-                files = new List<string>(ofd.FileNames);
-                UpdateButtons();
-                this.label_filecount.Text = $"Files: {files.Count}";
-            }
-            else
-            {
-                return;
-            }
-            Bitmap b = new Bitmap(files[0]);
-            Size baseSize = b.Size;
-            label_screensize.Text = $"Screen size: {baseSize.Width} x {baseSize.Height}";
-            foreach (var f in files)
-            {
-                b = new Bitmap(f);
-                if(baseSize != b.Size)
-                {
-                    MessageBox.Show("Wszystkie obrazy muszą mieć takie same wymiary.", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    ClearFiles();
-                    break;
-                }
-            }
-            currentBitmap = b;
-
-            ShowCurrentImage();
-        }
-
-        void ShowCurrentImage()
+        private void ShowCurrentImage()
         {
             if (currentBitmap == null)
                 return;
@@ -155,7 +134,7 @@ namespace Screenoinator
 
         private void UpdateButtons()
         {
-            button_process.Enabled = outputFolder != null && files.Count > 0;
+            button_process.Enabled = outputFolder != null && filesToCrop.Count > 0;
             button_enablescreenshots.Enabled = hasBasicScreenshot && !screenshotWorkerDoWork && outputFolder != null;
             button_stopscreenshots.Enabled = hasBasicScreenshot && screenshotWorkerDoWork;
             button_baseScreen.Enabled = !screenshotWorkerDoWork;
@@ -174,32 +153,13 @@ namespace Screenoinator
             numUD_Y.Maximum = currentBitmap.Height - numUD_height.Value;
         }
 
-        public Bitmap ResizeToFit(Bitmap bitmap, int width, int height)
-        {
-            if (bitmap == null)
-            {
-                return null;
-            }
-            float dRatio = (float)width / (float)height;
-            float bRatio = (float)bitmap.Width / (float)bitmap.Height;
-            if (dRatio < bRatio)
-            {
-                return new Bitmap(bitmap, width, (int)(width / bRatio));
-            }
-            else
-            {
-                return new Bitmap(bitmap, (int)(height * bRatio), (int)(height));
-            }
-
-        }
-
         private void ShowImage(Bitmap b)
         {
             if (b == null)
                 return;
             try
             {
-                this.pb_overview.BackgroundImage = ResizeToFit(b, this.pb_overview.Width, this.pb_overview.Height);
+                this.pb_overview.BackgroundImage = Program.ResizeToFit(b, this.pb_overview.Width, this.pb_overview.Height);
                 ApplyFrame();
             }
             catch
@@ -211,17 +171,17 @@ namespace Screenoinator
         private void ApplyFrame()
         {
             Bitmap b = new Bitmap(pb_overview.BackgroundImage.Width, pb_overview.BackgroundImage.Height);
-            scale = b.Width / (float)currentBitmap.Width;
+            overviewScale = b.Width / (float)currentBitmap.Width;
             int penWidth = Math.Max(1, Math.Max(pb_overview.BackgroundImage.Width, pb_overview.BackgroundImage.Height) / 400);
             Pen pen = new Pen(Color.Red, penWidth);
             SolidBrush outsideBrush = new SolidBrush(Color.FromArgb(128, 0, 0, 0));
             SolidBrush eraser = new SolidBrush(Color.FromArgb(0, 255, 255, 255));
             SolidBrush insideBrush = new SolidBrush(Color.FromArgb(24, 0, 0, 0));
             Rectangle fRec = new Rectangle(
-                    (int)(cutRectangle.X * scale),
-                    (int)(cutRectangle.Y * scale),
-                    (int)(cutRectangle.Width * scale) + penWidth,
-                    (int)(cutRectangle.Height * scale) + penWidth);
+                    (int)(selectionRectangle.X * overviewScale),
+                    (int)(selectionRectangle.Y * overviewScale),
+                    (int)(selectionRectangle.Width * overviewScale) + penWidth,
+                    (int)(selectionRectangle.Height * overviewScale) + penWidth);
             using (Graphics g = Graphics.FromImage(b))
             {
                 if (checkBox_shade.Checked || screenshotWorkerDoWork)
@@ -235,48 +195,96 @@ namespace Screenoinator
                 g.DrawRectangle(pen, fRec);
             }
             pb_overview.Image = b;
-            label_spos.Text = $"Region position: {cutRectangle.X}x{cutRectangle.Y}";
-            label_ssize.Text = $"Region size: {cutRectangle.Width}x{cutRectangle.Height}";
+            label_spos.Text = $"Region position: {selectionRectangle.X}x{selectionRectangle.Y}";
+            label_ssize.Text = $"Region size: {selectionRectangle.Width}x{selectionRectangle.Height}";
         }
 
         private void ClearFiles()
         {
-            files.Clear();
-            this.label_filecount.Text = $"Files: {files.Count}";
+            filesToCrop.Clear();
+            this.label_filecount.Text = $"Files: {filesToCrop.Count}";
             this.label_screensize.Text = $"Screen size: (?)";
             ClearImages();
         }
 
-        bool IsMouseOver()
+        private void StopRunningScreenshots()
         {
-            Point p = pb_overview.PointToClient(MousePosition);
-            return mouseOverPicturebox && p.X >= 0 && p.Y >= 0 && p.X < currentBitmap.Width * scale && p.Y < currentBitmap.Height * scale;
+            if (screenshotWorker.IsBusy)
+            {
+                screenshotWorker.CancelAsync();
+            }
+            screenshotWorkerDoWork = false;
+            ShowCurrentImage();
+            UpdateButtons();
+            pb_cropped.Visible = false;
+
         }
 
-        void MouseOverPictureUp(Point e)
+        private bool IsMouseOver()
+        {
+            Point p = pb_overview.PointToClient(MousePosition);
+            return mouseOverPicturebox && p.X >= 0 && p.Y >= 0 && p.X < currentBitmap.Width * overviewScale && p.Y < currentBitmap.Height * overviewScale;
+        }
+
+        private void MouseOverPictureUp(Point e)
         {
             selectionEndPoint = e;
             if (e.X >= (int)selectionBeginPoint.X)
             {
-                numUD_width.Value = Math.Min((int)((e.X - selectionBeginPoint.X) / scale), numUD_width.Maximum - (int)(selectionBeginPoint.X / scale));
+                numUD_width.Value = Math.Min((int)((e.X - selectionBeginPoint.X) / overviewScale), numUD_width.Maximum - (int)(selectionBeginPoint.X / overviewScale));
             }
             else
             {
-                numUD_X.Value = Math.Min(Math.Max(0, (int)(selectionEndPoint.X / scale)), numUD_X.Maximum);
-                numUD_width.Value = Math.Min((int)((selectionBeginPoint.X - e.X) / scale), numUD_width.Maximum);
+                numUD_X.Value = Math.Min(Math.Max(0, (int)(selectionEndPoint.X / overviewScale)), numUD_X.Maximum);
+                numUD_width.Value = Math.Min((int)((selectionBeginPoint.X - e.X) / overviewScale), numUD_width.Maximum);
             }
 
             if (e.Y >= (int)selectionBeginPoint.Y)
             {
-                numUD_height.Value = Math.Min((int)((e.Y - selectionBeginPoint.Y) / scale), numUD_height.Maximum - (int)(selectionBeginPoint.Y / scale));
+                numUD_height.Value = Math.Min((int)((e.Y - selectionBeginPoint.Y) / overviewScale), numUD_height.Maximum - (int)(selectionBeginPoint.Y / overviewScale));
             }
             else
             {
-                numUD_Y.Value = Math.Min(Math.Max(0, (int)(selectionEndPoint.Y / scale)), numUD_Y.Maximum);
-                numUD_height.Value = Math.Min((int)((selectionBeginPoint.Y - e.Y) / scale), numUD_height.Maximum);
+                numUD_Y.Value = Math.Min(Math.Max(0, (int)(selectionEndPoint.Y / overviewScale)), numUD_Y.Maximum);
+                numUD_height.Value = Math.Min((int)((selectionBeginPoint.Y - e.Y) / overviewScale), numUD_height.Maximum);
             }
             UpdateRectangle();
             ApplyFrame();
+        }
+
+        #endregion
+
+        #region Controls
+        #region Buttons
+        private void Button_select_Click(object sender, EventArgs e)
+        {
+            DialogResult dr = ofd.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                filesToCrop = new List<string>(ofd.FileNames);
+                UpdateButtons();
+                this.label_filecount.Text = $"Files: {filesToCrop.Count}";
+            }
+            else
+            {
+                return;
+            }
+            Bitmap b = new Bitmap(filesToCrop[0]);
+            Size baseSize = b.Size;
+            label_screensize.Text = $"Screen size: {baseSize.Width} x {baseSize.Height}";
+            foreach (var f in filesToCrop)
+            {
+                b = new Bitmap(f);
+                if (baseSize != b.Size)
+                {
+                    MessageBox.Show("Wszystkie obrazy muszą mieć takie same wymiary.", "Błąd!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    ClearFiles();
+                    break;
+                }
+            }
+            currentBitmap = b;
+
+            ShowCurrentImage();
         }
 
         private void Button_clear_Click(object sender, EventArgs e)
@@ -302,7 +310,7 @@ namespace Screenoinator
 
         private void Button_process_Click(object sender, EventArgs e)
         {
-            var m = new CroppingProgressForm(files, cutRectangle, outputFolder);
+            var m = new CroppingProgressForm(filesToCrop, selectionRectangle, outputFolder);
             m.Show();
             Enabled = false;
         }
@@ -357,7 +365,9 @@ namespace Screenoinator
             hasBasicScreenshot = true;
             UpdateButtons();
         }
+        #endregion
 
+        #region NumericUpDowns
         private void NumUD_width_ValueChanged(object sender, EventArgs e)
         {
             if (mouseDown || currentBitmap == null)
@@ -391,7 +401,9 @@ namespace Screenoinator
             UpdateRectangle();
             ShowImage(currentBitmap);
         }
+        #endregion
 
+        #region UI Overview
         private void Pb_overview_SizeChanged(object sender, EventArgs e)
         {
             ShowImage(currentBitmap);
@@ -403,8 +415,8 @@ namespace Screenoinator
                 return;
             mouseDown = true;
             selectionBeginPoint = e.Location;
-            numUD_X.Value = Math.Min((int)(e.X / scale), numUD_X.Maximum);
-            numUD_Y.Value = Math.Min((int)(e.Y / scale), numUD_Y.Maximum);
+            numUD_X.Value = Math.Min((int)(e.X / overviewScale), numUD_X.Maximum);
+            numUD_Y.Value = Math.Min((int)(e.Y / overviewScale), numUD_Y.Maximum);
             numUD_width.Value = 1;
             numUD_height.Value = 1;
             UpdatePositions();
@@ -444,7 +456,9 @@ namespace Screenoinator
             }
 
         }
+        #endregion
 
+        #region UI Misc
         private void CheckBox_shade_CheckedChanged(object sender, EventArgs e)
         {
             ApplyFrame();
@@ -463,20 +477,10 @@ namespace Screenoinator
 
             }
         }
+        #endregion
+        #endregion
 
-        void StopRunningScreenshots()
-        {
-            if(screenshotWorker.IsBusy)
-            {
-                screenshotWorker.CancelAsync();
-            }
-            screenshotWorkerDoWork = false;
-            ShowCurrentImage();
-            UpdateButtons();
-            pb_cropped.Visible = false;
-            
-        }
-
+        #region Worker
         private void screenshotWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             while(screenshotWorkerDoWork)
@@ -487,10 +491,10 @@ namespace Screenoinator
                     //var bmp = Program.CropImage(TakeScreenshot(), cutRectangle);
                     var bmp = Program.TakeScreenshot(
                         new Rectangle(
-                            cutRectangle.X - virtualScreenOffset.X, 
-                            cutRectangle.Y - virtualScreenOffset.Y, 
-                            cutRectangle.Width, 
-                            cutRectangle.Height)
+                            selectionRectangle.X - virtualScreenOffset.X, 
+                            selectionRectangle.Y - virtualScreenOffset.Y, 
+                            selectionRectangle.Width, 
+                            selectionRectangle.Height)
                         );
                     var sml = Program.StreachBitmapToSize(bmp, bmp.Width / 100, bmp.Height / 100);
                     screenshotsTaken += 1;
@@ -530,5 +534,6 @@ namespace Screenoinator
         {
             
         }
+        #endregion
     }
 }

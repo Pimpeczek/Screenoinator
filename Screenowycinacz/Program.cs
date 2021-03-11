@@ -49,6 +49,25 @@ namespace Screenoinator
             return bmp;
         }
 
+        public static Bitmap ResizeToFit(Bitmap bitmap, int width, int height)
+        {
+            if (bitmap == null)
+            {
+                return null;
+            }
+            float dRatio = (float)width / (float)height;
+            float bRatio = (float)bitmap.Width / (float)bitmap.Height;
+            if (dRatio < bRatio)
+            {
+                return new Bitmap(bitmap, width, (int)(width / bRatio));
+            }
+            else
+            {
+                return new Bitmap(bitmap, (int)(height * bRatio), (int)(height));
+            }
+
+        }
+
         public static int CompareBitmaps(Bitmap b1, Bitmap b2)
         {
             if (b1.Size != b2.Size)

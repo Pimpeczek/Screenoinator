@@ -9,56 +9,61 @@ namespace Screenoinator
 {
     public partial class CroppingProgressForm : Form
     {
-        private readonly BackgroundWorker loadingWorker;
+        #region Class variables
+        private readonly BackgroundWorker croppingWorker;
         private List<string> files;
-        private Rectangle cutRectangle;
+        private Rectangle selectionRectangle;
         private string outputFolder;
-        bool doWork;
+        private bool doWork;
+        #endregion
+
+        #region Initialization
         public CroppingProgressForm(List<string> files, Rectangle cutRectangle, string outputFolder)
         {
             InitializeComponent();
-            loadingWorker = new BackgroundWorker
+            croppingWorker = new BackgroundWorker
             {
                 WorkerReportsProgress = true,
                 WorkerSupportsCancellation = true
             };
-            loadingWorker.DoWork +=
-                new DoWorkEventHandler(loadingWorker_DoWork);
-            loadingWorker.RunWorkerCompleted +=
+            croppingWorker.DoWork +=
+                new DoWorkEventHandler(croppingWorker_DoWork);
+            croppingWorker.RunWorkerCompleted +=
                 new RunWorkerCompletedEventHandler(
-            loadingWorker_RunWorkerCompleted);
-            loadingWorker.ProgressChanged +=
+            croppingWorker_RunWorkerCompleted);
+            croppingWorker.ProgressChanged +=
                 new ProgressChangedEventHandler(
-            loadingWorker_ProgressChanged);
+            croppingWorker_ProgressChanged);
             doWork = true;
             this.files = files;
-            this.cutRectangle = cutRectangle;
+            this.selectionRectangle = cutRectangle;
             this.outputFolder = outputFolder;
             progressBar1.Minimum = 0;
             progressBar1.Value = 0;
             progressBar1.Maximum = files.Count;
-            loadingWorker.RunWorkerAsync();
+            croppingWorker.RunWorkerAsync();
         }
-        
+        #endregion
 
-        private void loadingWorker_DoWork(object sender, DoWorkEventArgs e)
+        #region Worker
+        private void croppingWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             for (int i = 0; i < files.Count; i++)
             {
                 if (doWork)
                 {
-                    using (var cropped = Program.CropImage(new Bitmap(files[i]), cutRectangle))
+                    using (var cropped = Program.CropImage(new Bitmap(files[i]), selectionRectangle))
                         cropped.Save(Path.Combine(outputFolder, $"{i}.png"));
-                    loadingWorker.ReportProgress(0);
+                    croppingWorker.ReportProgress(0);
                 }
                 else
                 {
-                    loadingWorker.Dispose();
+                    croppingWorker.Dispose();
                 }
             }
         }
 
-        private void loadingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void croppingWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             if (doWork)
             {
@@ -73,12 +78,14 @@ namespace Screenoinator
         }
 
         // This event handler deals with the results of the background operation.
-        private void loadingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void croppingWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             button_exit.Enabled = true;
             button_stop.Enabled = false;
         }
+        #endregion
 
+        #region Controls
         private void Button_exit_Click(object sender, EventArgs e)
         {
             Program.MainWindow.Enabled = true;
@@ -90,5 +97,6 @@ namespace Screenoinator
             doWork = false;
             
         }
+        #endregion
     }
 }
