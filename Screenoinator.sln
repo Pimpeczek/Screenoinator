@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Screenoinator", "Screenowycinacz\Screenoinator.csproj", "{609C2B73-FE97-4ACF-89A7-6AB776497A9B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Screenoinator", "Screenoinator\Screenoinator.csproj", "{609C2B73-FE97-4ACF-89A7-6AB776497A9B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
