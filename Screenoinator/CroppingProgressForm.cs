@@ -54,7 +54,8 @@ namespace Screenoinator
                 {
                     using (var cropped = Program.CropImage(new Bitmap(files[i]), selectionRectangle))
                     {
-                        Program.ApplyWatermark(cropped);
+                        if(Program.ApplyWatermarkFlag)
+                            Program.ApplyWatermark(cropped);
                         cropped.Save(Path.Combine(outputFolder, $"{i}.png"));
                     }
                     croppingWorker.ReportProgress(0);

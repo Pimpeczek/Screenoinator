@@ -12,9 +12,10 @@ namespace Screenoinator
         /// Główny punkt wejścia dla aplikacji.
         /// </summary>
         private static readonly SolidBrush watermarkBlackBrush = new SolidBrush(Color.FromArgb(128, 16, 16, 16));
-        private static readonly SolidBrush watermarkWhiteBrush = new SolidBrush(Color.FromArgb(128, Color.White));
+        private static readonly SolidBrush watermarkWhiteBrush = new SolidBrush(Color.FromArgb(64, Color.Gray));
         private static GraphicsPath watermarkPath;
         private static Size pathBitmapSize;
+        public static bool ApplyWatermarkFlag { get; set; } = true;
         [STAThread]
         static void Main()
         {
@@ -123,20 +124,20 @@ namespace Screenoinator
 
         private static GraphicsPath CreateWatermarkPath(Bitmap bitmap)
         {
-            if (pathBitmapSize != null && pathBitmapSize != bitmap.Size)
+            if (pathBitmapSize != null && watermarkPath != null && pathBitmapSize != bitmap.Size)
             {
                 return Program.watermarkPath;
             }
             pathBitmapSize = new Size(bitmap.Width, bitmap.Height);
             Size size = new Size(105, 18);
             Rectangle r = new Rectangle(bitmap.Width - size.Width, bitmap.Height - size.Height, size.Width, size.Height);
-            GraphicsPath newWatermarkPath = new GraphicsPath();
-            newWatermarkPath.AddArc(new RectangleF(r.X, r.Y, r.Height * 2, r.Height * 2), 180, 90);
-            newWatermarkPath.AddLine(r.X + r.Height, r.Y, r.X + r.Width, r.Y);
-            newWatermarkPath.AddLine(r.X + r.Width, r.Y, r.X + r.Width, r.Y + r.Height);
-            newWatermarkPath.AddLine(r.X, r.Y + r.Height, r.X + r.Width, r.Y + r.Height);
-            newWatermarkPath.CloseFigure();
-            return newWatermarkPath;
+            watermarkPath = new GraphicsPath();
+            watermarkPath.AddArc(new RectangleF(r.X, r.Y, r.Height * 2, r.Height * 2), 180, 90);
+            watermarkPath.AddLine(r.X + r.Height, r.Y, r.X + r.Width, r.Y);
+            watermarkPath.AddLine(r.X + r.Width, r.Y, r.X + r.Width, r.Y + r.Height);
+            watermarkPath.AddLine(r.X, r.Y + r.Height, r.X + r.Width, r.Y + r.Height);
+            watermarkPath.CloseFigure();
+            return watermarkPath;
         }
     }
 }

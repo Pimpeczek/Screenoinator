@@ -34,7 +34,7 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.pb_cropped = new System.Windows.Forms.PictureBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage_auto = new System.Windows.Forms.TabPage();
             this.label_ssize = new System.Windows.Forms.Label();
             this.label_spos = new System.Windows.Forms.Label();
             this.label_saved = new System.Windows.Forms.Label();
@@ -49,7 +49,7 @@
             this.button_enablescreenshots = new System.Windows.Forms.Button();
             this.numUD_treshold = new System.Windows.Forms.NumericUpDown();
             this.numUD_interval = new System.Windows.Forms.NumericUpDown();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage_manual = new System.Windows.Forms.TabPage();
             this.label10 = new System.Windows.Forms.Label();
             this.textBox_outputFolder = new System.Windows.Forms.TextBox();
             this.button_process = new System.Windows.Forms.Button();
@@ -69,17 +69,21 @@
             this.numUD_width = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabPage_dev = new System.Windows.Forms.TabPage();
+            this.checkBox_applWatermark = new System.Windows.Forms.CheckBox();
+            this.button_manualScreen = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pb_overview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pb_cropped)).BeginInit();
-            this.tabPage2.SuspendLayout();
+            this.tabPage_auto.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_treshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_interval)).BeginInit();
-            this.tabPage1.SuspendLayout();
+            this.tabPage_manual.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_Y)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_X)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_height)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_width)).BeginInit();
             this.tabControl.SuspendLayout();
+            this.tabPage_dev.SuspendLayout();
             this.SuspendLayout();
             // 
             // pb_overview
@@ -90,7 +94,7 @@
             this.pb_overview.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.pb_overview.Location = new System.Drawing.Point(181, 3);
             this.pb_overview.Name = "pb_overview";
-            this.pb_overview.Size = new System.Drawing.Size(601, 566);
+            this.pb_overview.Size = new System.Drawing.Size(601, 583);
             this.pb_overview.TabIndex = 0;
             this.pb_overview.TabStop = false;
             this.pb_overview.SizeChanged += new System.EventHandler(this.Pb_overview_SizeChanged);
@@ -108,7 +112,7 @@
             this.pb_cropped.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.pb_cropped.Location = new System.Drawing.Point(181, 3);
             this.pb_cropped.Name = "pb_cropped";
-            this.pb_cropped.Size = new System.Drawing.Size(601, 566);
+            this.pb_cropped.Size = new System.Drawing.Size(601, 583);
             this.pb_cropped.TabIndex = 27;
             this.pb_cropped.TabStop = false;
             this.pb_cropped.Visible = false;
@@ -116,36 +120,37 @@
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(3, 315);
+            this.label9.Location = new System.Drawing.Point(3, 333);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(166, 221);
             this.label9.TabIndex = 28;
             this.label9.Text = resources.GetString("label9.Text");
             // 
-            // tabPage2
+            // tabPage_auto
             // 
-            this.tabPage2.Controls.Add(this.label9);
-            this.tabPage2.Controls.Add(this.label_ssize);
-            this.tabPage2.Controls.Add(this.label_spos);
-            this.tabPage2.Controls.Add(this.label_saved);
-            this.tabPage2.Controls.Add(this.label_taken);
-            this.tabPage2.Controls.Add(this.textBox_outputAuto);
-            this.tabPage2.Controls.Add(this.button_baseScreen);
-            this.tabPage2.Controls.Add(this.button_stopscreenshots);
-            this.tabPage2.Controls.Add(this.label8);
-            this.tabPage2.Controls.Add(this.label6);
-            this.tabPage2.Controls.Add(this.label5);
-            this.tabPage2.Controls.Add(this.button_outputAuto);
-            this.tabPage2.Controls.Add(this.button_enablescreenshots);
-            this.tabPage2.Controls.Add(this.numUD_treshold);
-            this.tabPage2.Controls.Add(this.numUD_interval);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(168, 540);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Auto";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.tabPage_auto.Controls.Add(this.button_manualScreen);
+            this.tabPage_auto.Controls.Add(this.label9);
+            this.tabPage_auto.Controls.Add(this.label_ssize);
+            this.tabPage_auto.Controls.Add(this.label_spos);
+            this.tabPage_auto.Controls.Add(this.label_saved);
+            this.tabPage_auto.Controls.Add(this.label_taken);
+            this.tabPage_auto.Controls.Add(this.textBox_outputAuto);
+            this.tabPage_auto.Controls.Add(this.button_baseScreen);
+            this.tabPage_auto.Controls.Add(this.button_stopscreenshots);
+            this.tabPage_auto.Controls.Add(this.label8);
+            this.tabPage_auto.Controls.Add(this.label6);
+            this.tabPage_auto.Controls.Add(this.label5);
+            this.tabPage_auto.Controls.Add(this.button_outputAuto);
+            this.tabPage_auto.Controls.Add(this.button_enablescreenshots);
+            this.tabPage_auto.Controls.Add(this.numUD_treshold);
+            this.tabPage_auto.Controls.Add(this.numUD_interval);
+            this.tabPage_auto.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_auto.Name = "tabPage_auto";
+            this.tabPage_auto.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_auto.Size = new System.Drawing.Size(168, 557);
+            this.tabPage_auto.TabIndex = 1;
+            this.tabPage_auto.Text = "Auto";
+            this.tabPage_auto.UseVisualStyleBackColor = true;
             // 
             // label_ssize
             // 
@@ -168,7 +173,7 @@
             // label_saved
             // 
             this.label_saved.AutoSize = true;
-            this.label_saved.Location = new System.Drawing.Point(5, 285);
+            this.label_saved.Location = new System.Drawing.Point(6, 312);
             this.label_saved.Name = "label_saved";
             this.label_saved.Size = new System.Drawing.Size(101, 13);
             this.label_saved.TabIndex = 25;
@@ -177,7 +182,7 @@
             // label_taken
             // 
             this.label_taken.AutoSize = true;
-            this.label_taken.Location = new System.Drawing.Point(5, 267);
+            this.label_taken.Location = new System.Drawing.Point(6, 295);
             this.label_taken.Name = "label_taken";
             this.label_taken.Size = new System.Drawing.Size(99, 13);
             this.label_taken.TabIndex = 24;
@@ -197,14 +202,14 @@
             this.button_baseScreen.Name = "button_baseScreen";
             this.button_baseScreen.Size = new System.Drawing.Size(156, 23);
             this.button_baseScreen.TabIndex = 20;
-            this.button_baseScreen.Text = "Take base screenshot";
+            this.button_baseScreen.Text = "Take calibration screenshot";
             this.button_baseScreen.UseVisualStyleBackColor = true;
             this.button_baseScreen.Click += new System.EventHandler(this.Button_baseScreen_Click);
             // 
             // button_stopscreenshots
             // 
             this.button_stopscreenshots.Enabled = false;
-            this.button_stopscreenshots.Location = new System.Drawing.Point(5, 241);
+            this.button_stopscreenshots.Location = new System.Drawing.Point(5, 270);
             this.button_stopscreenshots.Name = "button_stopscreenshots";
             this.button_stopscreenshots.Size = new System.Drawing.Size(156, 23);
             this.button_stopscreenshots.TabIndex = 19;
@@ -299,33 +304,33 @@
             0,
             0});
             // 
-            // tabPage1
+            // tabPage_manual
             // 
-            this.tabPage1.Controls.Add(this.label10);
-            this.tabPage1.Controls.Add(this.textBox_outputFolder);
-            this.tabPage1.Controls.Add(this.button_process);
-            this.tabPage1.Controls.Add(this.label1);
-            this.tabPage1.Controls.Add(this.label7);
-            this.tabPage1.Controls.Add(this.button_output);
-            this.tabPage1.Controls.Add(this.label4);
-            this.tabPage1.Controls.Add(this.checkBox_shade);
-            this.tabPage1.Controls.Add(this.label2);
-            this.tabPage1.Controls.Add(this.button_select);
-            this.tabPage1.Controls.Add(this.button_clear);
-            this.tabPage1.Controls.Add(this.numUD_Y);
-            this.tabPage1.Controls.Add(this.numUD_X);
-            this.tabPage1.Controls.Add(this.label_filecount);
-            this.tabPage1.Controls.Add(this.label_screensize);
-            this.tabPage1.Controls.Add(this.numUD_height);
-            this.tabPage1.Controls.Add(this.numUD_width);
-            this.tabPage1.Controls.Add(this.label3);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(168, 540);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Manual";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.tabPage_manual.Controls.Add(this.label10);
+            this.tabPage_manual.Controls.Add(this.textBox_outputFolder);
+            this.tabPage_manual.Controls.Add(this.button_process);
+            this.tabPage_manual.Controls.Add(this.label1);
+            this.tabPage_manual.Controls.Add(this.label7);
+            this.tabPage_manual.Controls.Add(this.button_output);
+            this.tabPage_manual.Controls.Add(this.label4);
+            this.tabPage_manual.Controls.Add(this.checkBox_shade);
+            this.tabPage_manual.Controls.Add(this.label2);
+            this.tabPage_manual.Controls.Add(this.button_select);
+            this.tabPage_manual.Controls.Add(this.button_clear);
+            this.tabPage_manual.Controls.Add(this.numUD_Y);
+            this.tabPage_manual.Controls.Add(this.numUD_X);
+            this.tabPage_manual.Controls.Add(this.label_filecount);
+            this.tabPage_manual.Controls.Add(this.label_screensize);
+            this.tabPage_manual.Controls.Add(this.numUD_height);
+            this.tabPage_manual.Controls.Add(this.numUD_width);
+            this.tabPage_manual.Controls.Add(this.label3);
+            this.tabPage_manual.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_manual.Name = "tabPage_manual";
+            this.tabPage_manual.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage_manual.Size = new System.Drawing.Size(168, 540);
+            this.tabPage_manual.TabIndex = 0;
+            this.tabPage_manual.Text = "Manual";
+            this.tabPage_manual.UseVisualStyleBackColor = true;
             // 
             // label10
             // 
@@ -502,20 +507,56 @@
             // 
             // tabControl
             // 
-            this.tabControl.Controls.Add(this.tabPage1);
-            this.tabControl.Controls.Add(this.tabPage2);
+            this.tabControl.Controls.Add(this.tabPage_manual);
+            this.tabControl.Controls.Add(this.tabPage_auto);
+            this.tabControl.Controls.Add(this.tabPage_dev);
             this.tabControl.Location = new System.Drawing.Point(3, 3);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(176, 566);
+            this.tabControl.Size = new System.Drawing.Size(176, 583);
             this.tabControl.TabIndex = 2;
             this.tabControl.SelectedIndexChanged += new System.EventHandler(this.TabControl_SelectedIndexChanged);
+            this.tabControl.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TabControl_KeyDown);
+            // 
+            // tabPage_dev
+            // 
+            this.tabPage_dev.Controls.Add(this.checkBox_applWatermark);
+            this.tabPage_dev.Location = new System.Drawing.Point(4, 22);
+            this.tabPage_dev.Name = "tabPage_dev";
+            this.tabPage_dev.Size = new System.Drawing.Size(168, 540);
+            this.tabPage_dev.TabIndex = 2;
+            this.tabPage_dev.Text = "Dev";
+            this.tabPage_dev.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_applWatermark
+            // 
+            this.checkBox_applWatermark.AutoSize = true;
+            this.checkBox_applWatermark.Checked = true;
+            this.checkBox_applWatermark.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_applWatermark.Location = new System.Drawing.Point(6, 4);
+            this.checkBox_applWatermark.Name = "checkBox_applWatermark";
+            this.checkBox_applWatermark.Size = new System.Drawing.Size(104, 17);
+            this.checkBox_applWatermark.TabIndex = 0;
+            this.checkBox_applWatermark.Text = "Apply watermark";
+            this.checkBox_applWatermark.UseVisualStyleBackColor = true;
+            this.checkBox_applWatermark.CheckedChanged += new System.EventHandler(this.CheckBox_applWatermark_CheckedChanged);
+            // 
+            // button_manualScreen
+            // 
+            this.button_manualScreen.Enabled = false;
+            this.button_manualScreen.Location = new System.Drawing.Point(6, 241);
+            this.button_manualScreen.Name = "button_manualScreen";
+            this.button_manualScreen.Size = new System.Drawing.Size(156, 23);
+            this.button_manualScreen.TabIndex = 29;
+            this.button_manualScreen.Text = "Manual screenshot";
+            this.button_manualScreen.UseVisualStyleBackColor = true;
+            this.button_manualScreen.Click += new System.EventHandler(this.Button_manualScreen_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(785, 572);
+            this.ClientSize = new System.Drawing.Size(785, 589);
             this.Controls.Add(this.pb_cropped);
             this.Controls.Add(this.pb_overview);
             this.Controls.Add(this.tabControl);
@@ -525,17 +566,19 @@
             this.Text = "Screenoinator";
             ((System.ComponentModel.ISupportInitialize)(this.pb_overview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pb_cropped)).EndInit();
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage2.PerformLayout();
+            this.tabPage_auto.ResumeLayout(false);
+            this.tabPage_auto.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_treshold)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_interval)).EndInit();
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage1.PerformLayout();
+            this.tabPage_manual.ResumeLayout(false);
+            this.tabPage_manual.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_Y)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_X)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_height)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numUD_width)).EndInit();
             this.tabControl.ResumeLayout(false);
+            this.tabPage_dev.ResumeLayout(false);
+            this.tabPage_dev.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -545,7 +588,7 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.PictureBox pb_cropped;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage_auto;
         private System.Windows.Forms.Label label_ssize;
         private System.Windows.Forms.Label label_spos;
         private System.Windows.Forms.Label label_saved;
@@ -560,7 +603,7 @@
         private System.Windows.Forms.Button button_enablescreenshots;
         private System.Windows.Forms.NumericUpDown numUD_treshold;
         private System.Windows.Forms.NumericUpDown numUD_interval;
-        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage_manual;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox textBox_outputFolder;
         private System.Windows.Forms.Button button_process;
@@ -580,6 +623,9 @@
         private System.Windows.Forms.NumericUpDown numUD_width;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.TabPage tabPage_dev;
+        private System.Windows.Forms.CheckBox checkBox_applWatermark;
+        private System.Windows.Forms.Button button_manualScreen;
     }
 }
 

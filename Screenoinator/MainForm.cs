@@ -29,6 +29,7 @@ namespace Screenoinator
         private bool mouseDown;
         private bool mouseOverPicturebox;
         private bool hasBasicScreenshot;
+        private bool takeManualScreenshot;
         #endregion
 
         #region Initialization
@@ -36,8 +37,8 @@ namespace Screenoinator
         {
             InitializeComponent();
             virtualScreenOffset = new Point();
-            
-            
+
+
             selectionRectangle = new Rectangle(0, 0, 100, 100);
             filesToCrop = new List<string>();
             outputFolder = null;
@@ -48,6 +49,7 @@ namespace Screenoinator
             mouseDown = false;
             mouseOverPicturebox = false;
             hasBasicScreenshot = false;
+            tabControl.TabPages.Remove(tabPage_dev);
             InitializeOpenFileDialog();
             InitializeWorker();
             InitializeTooltips();
@@ -138,8 +140,13 @@ namespace Screenoinator
             button_enablescreenshots.Enabled = hasBasicScreenshot && !screenshotWorkerDoWork && outputFolder != null;
             button_stopscreenshots.Enabled = hasBasicScreenshot && screenshotWorkerDoWork;
             button_baseScreen.Enabled = !screenshotWorkerDoWork;
+            button_manualScreen.Enabled = hasBasicScreenshot && outputFolder != null;
         }
-
+        private void UpdateLabels()
+        {
+            label_taken.Text = $"Screenshots taken: {screenshotsTaken}";
+            label_saved.Text = $"Screenshots saved: {screenshotsSaved}";
+        }
         private void ClearImages()
         {
             pb_overview.Image = null;
@@ -324,8 +331,7 @@ namespace Screenoinator
             ShowCurrentImage();
             screenshotsTaken = 0;
             screenshotsSaved = 0;
-            label_taken.Text = $"Screenshots taken: {screenshotsTaken}";
-            label_saved.Text = $"Screenshots saved: {screenshotsSaved}";
+            UpdateLabels();
 
             pb_cropped.Visible = true;
             while (screenshotWorker.IsBusy) { }
@@ -336,7 +342,37 @@ namespace Screenoinator
         {
             StopRunningScreenshots();
         }
+        private void Button_manualScreen_Click(object sender, EventArgs e)
+        {
+            if (screenshotWorkerDoWork)
+            {
+                takeManualScreenshot = true;
+            }
+            else
+            {
+                try
+                {
+                    var bmp = Program.TakeScreenshot(
+                            new Rectangle(
+                                selectionRectangle.X - virtualScreenOffset.X,
+                                selectionRectangle.Y - virtualScreenOffset.Y,
+                                selectionRectangle.Width,
+                                selectionRectangle.Height)
+                            );
+                    screenshotsTaken += 1;
+                    screenshotsSaved += 1;
+                    UpdateLabels();
+                    var timeStr = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                    if (Program.ApplyWatermarkFlag)
+                        Program.ApplyWatermark(bmp);
+                    bmp.Save(Path.Combine(outputFolder, $"{timeStr}.png"));
+                }
+                catch
+                {
 
+                }
+            }
+        }
         private void Button_outputAuto_Click(object sender, EventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
@@ -449,10 +485,10 @@ namespace Screenoinator
 
         private void Pb_overview_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mouseDown )
+            if (mouseDown)
             {
                 MouseOverPictureUp(e.Location);
-                
+
             }
 
         }
@@ -477,23 +513,36 @@ namespace Screenoinator
 
             }
         }
+        private void TabControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Oemtilde)
+            {
+                if (tabControl.TabPages.Contains(tabPage_dev))
+                    tabControl.TabPages.Remove(tabPage_dev);
+                else
+                    tabControl.TabPages.Add(tabPage_dev);
+            }
+        }
+        private void CheckBox_applWatermark_CheckedChanged(object sender, EventArgs e)
+        {
+            Program.ApplyWatermarkFlag = checkBox_applWatermark.Checked;
+        }
         #endregion
         #endregion
 
         #region Worker
         private void screenshotWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            while(screenshotWorkerDoWork)
+            while (screenshotWorkerDoWork)
             {
                 Console.WriteLine("Print");
                 if (screenshotWorkerDoWork)
                 {
-                    //var bmp = Program.CropImage(TakeScreenshot(), cutRectangle);
                     var bmp = Program.TakeScreenshot(
                         new Rectangle(
-                            selectionRectangle.X - virtualScreenOffset.X, 
-                            selectionRectangle.Y - virtualScreenOffset.Y, 
-                            selectionRectangle.Width, 
+                            selectionRectangle.X - virtualScreenOffset.X,
+                            selectionRectangle.Y - virtualScreenOffset.Y,
+                            selectionRectangle.Width,
                             selectionRectangle.Height)
                         );
                     var sml = Program.StreachBitmapToSize(bmp, bmp.Width / 100, bmp.Height / 100);
@@ -509,15 +558,15 @@ namespace Screenoinator
                         previousSmlScreen = sml;
                         screenshotsSaved += 1;
                         var timeStr = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                        if (Program.ApplyWatermarkFlag)
+                            Program.ApplyWatermark(bmp);
                         bmp.Save(Path.Combine(outputFolder, $"{timeStr}.png"));
                     }
-                    
-
-                    
                 }
                 screenshotWorker.ReportProgress(0);
-                for(int i = (int)numUD_interval.Value * 10; screenshotWorkerDoWork && i >= 0; i--)
-                    System.Threading.Thread.Sleep(100);
+                for (int i = (int)numUD_interval.Value * 20; screenshotWorkerDoWork && !takeManualScreenshot && i >= 0; i--)
+                    System.Threading.Thread.Sleep(50);
+                takeManualScreenshot = false;
             }
 
             screenshotWorker.Dispose();
@@ -527,13 +576,18 @@ namespace Screenoinator
         {
             label_taken.Text = $"Screenshots taken: {screenshotsTaken}";
             label_saved.Text = $"Screenshots saved: {screenshotsSaved}";
-            pb_cropped.Image = previousScreen;
+            pb_cropped.Image = Program.ResizeToFit(previousScreen, pb_cropped.Width, pb_cropped.Height);
         }
 
         private void screenshotWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            
+
         }
+
+
+
+
+
         #endregion
     }
 }
