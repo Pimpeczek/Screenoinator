@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace Screenoinator
@@ -10,7 +11,10 @@ namespace Screenoinator
         /// <summary>
         /// Główny punkt wejścia dla aplikacji.
         /// </summary>
-        
+        private static readonly SolidBrush watermarkBlackBrush = new SolidBrush(Color.FromArgb(128, 16, 16, 16));
+        private static readonly SolidBrush watermarkWhiteBrush = new SolidBrush(Color.FromArgb(128, Color.White));
+        private static GraphicsPath watermarkPath;
+        private static Size pathBitmapSize;
         [STAThread]
         static void Main()
         {
@@ -95,6 +99,44 @@ namespace Screenoinator
             }
 
             return result;
+        }
+
+        public static void ApplyWatermark(Bitmap bitmap)
+        {
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                StringFormat format = new StringFormat()
+                {
+                    Alignment = StringAlignment.Far,
+                    LineAlignment = StringAlignment.Far
+                };
+                RectangleF rectf = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                
+                
+                g.FillPath(watermarkBlackBrush, CreateWatermarkPath(bitmap));
+                g.DrawString("Screenoinator", new Font("Consolas", 9), watermarkWhiteBrush, rectf, format);
+            }
+        }
+
+        private static GraphicsPath CreateWatermarkPath(Bitmap bitmap)
+        {
+            if (pathBitmapSize != null && pathBitmapSize != bitmap.Size)
+            {
+                return Program.watermarkPath;
+            }
+            pathBitmapSize = new Size(bitmap.Width, bitmap.Height);
+            Size size = new Size(105, 18);
+            Rectangle r = new Rectangle(bitmap.Width - size.Width, bitmap.Height - size.Height, size.Width, size.Height);
+            GraphicsPath newWatermarkPath = new GraphicsPath();
+            newWatermarkPath.AddArc(new RectangleF(r.X, r.Y, r.Height * 2, r.Height * 2), 180, 90);
+            newWatermarkPath.AddLine(r.X + r.Height, r.Y, r.X + r.Width, r.Y);
+            newWatermarkPath.AddLine(r.X + r.Width, r.Y, r.X + r.Width, r.Y + r.Height);
+            newWatermarkPath.AddLine(r.X, r.Y + r.Height, r.X + r.Width, r.Y + r.Height);
+            newWatermarkPath.CloseFigure();
+            return newWatermarkPath;
         }
     }
 }

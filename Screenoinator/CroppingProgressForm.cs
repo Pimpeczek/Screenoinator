@@ -53,7 +53,10 @@ namespace Screenoinator
                 if (doWork)
                 {
                     using (var cropped = Program.CropImage(new Bitmap(files[i]), selectionRectangle))
+                    {
+                        Program.ApplyWatermark(cropped);
                         cropped.Save(Path.Combine(outputFolder, $"{i}.png"));
+                    }
                     croppingWorker.ReportProgress(0);
                 }
                 else
