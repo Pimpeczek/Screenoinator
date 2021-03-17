@@ -48,6 +48,7 @@ namespace Screenoinator
         #region Worker
         private void croppingWorker_DoWork(object sender, DoWorkEventArgs e)
         {
+            var timeStr = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
             for (int i = 0; i < files.Count; i++)
             {
                 if (doWork)
@@ -56,7 +57,8 @@ namespace Screenoinator
                     {
                         if(Program.ApplyWatermarkFlag)
                             Program.ApplyWatermark(cropped);
-                        cropped.Save(Path.Combine(outputFolder, $"{i}.png"));
+                        
+                        cropped.Save(Path.Combine(outputFolder, $"{timeStr}_{i}.png"));
                     }
                     croppingWorker.ReportProgress(0);
                 }

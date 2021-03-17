@@ -11,8 +11,8 @@ namespace Screenoinator
         /// <summary>
         /// Główny punkt wejścia dla aplikacji.
         /// </summary>
-        private static readonly SolidBrush watermarkBlackBrush = new SolidBrush(Color.FromArgb(128, 16, 16, 16));
-        private static readonly SolidBrush watermarkWhiteBrush = new SolidBrush(Color.FromArgb(64, Color.Gray));
+        private static readonly SolidBrush watermarkBlackBrush = new SolidBrush(Color.FromArgb(64, 32, 32, 32));
+        private static readonly SolidBrush watermarkWhiteBrush = new SolidBrush(Color.FromArgb(128, Color.White));
         private static GraphicsPath watermarkPath;
         private static Size pathBitmapSize;
         public static bool ApplyWatermarkFlag { get; set; } = true;
@@ -109,9 +109,9 @@ namespace Screenoinator
                 StringFormat format = new StringFormat()
                 {
                     Alignment = StringAlignment.Far,
-                    LineAlignment = StringAlignment.Far
+                    LineAlignment = StringAlignment.Far,
                 };
-                RectangleF rectf = new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+                RectangleF rectf = new RectangleF(0, 0, bitmap.Width, bitmap.Height + 1);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.PixelOffsetMode = PixelOffsetMode.HighQuality;
@@ -124,15 +124,15 @@ namespace Screenoinator
 
         private static GraphicsPath CreateWatermarkPath(Bitmap bitmap)
         {
-            if (pathBitmapSize != null && watermarkPath != null && pathBitmapSize != bitmap.Size)
+            if (watermarkPath != null && pathBitmapSize == bitmap.Size)
             {
                 return Program.watermarkPath;
             }
             pathBitmapSize = new Size(bitmap.Width, bitmap.Height);
-            Size size = new Size(105, 18);
+            Size size = new Size(110, 18);
             Rectangle r = new Rectangle(bitmap.Width - size.Width, bitmap.Height - size.Height, size.Width, size.Height);
             watermarkPath = new GraphicsPath();
-            watermarkPath.AddArc(new RectangleF(r.X, r.Y, r.Height * 2, r.Height * 2), 180, 90);
+            watermarkPath.AddArc(new RectangleF(r.X + r.Height / 2, r.Y, r.Height * 3 / 2, r.Height * 2), 180, 90);
             watermarkPath.AddLine(r.X + r.Height, r.Y, r.X + r.Width, r.Y);
             watermarkPath.AddLine(r.X + r.Width, r.Y, r.X + r.Width, r.Y + r.Height);
             watermarkPath.AddLine(r.X, r.Y + r.Height, r.X + r.Width, r.Y + r.Height);

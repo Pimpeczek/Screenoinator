@@ -545,7 +545,7 @@ namespace Screenoinator
                             selectionRectangle.Width,
                             selectionRectangle.Height)
                         );
-                    var sml = Program.StreachBitmapToSize(bmp, bmp.Width / 100, bmp.Height / 100);
+                    var sml = Program.StreachBitmapToSize(bmp, bmp.Width / 50, bmp.Height / 50);
                     screenshotsTaken += 1;
                     if (previousSmlScreen == null || Program.CompareBitmaps(sml, previousSmlScreen) > numUD_treshold.Value)
                     {

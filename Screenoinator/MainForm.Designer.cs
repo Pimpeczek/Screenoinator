@@ -231,18 +231,18 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(6, 71);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(45, 13);
+            this.label6.Size = new System.Drawing.Size(59, 13);
             this.label6.TabIndex = 18;
-            this.label6.Text = "Interval:";
+            this.label6.Text = "Interval (s):";
             // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 32);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(51, 13);
+            this.label5.Size = new System.Drawing.Size(68, 13);
             this.label5.TabIndex = 17;
-            this.label5.Text = "Treshold:";
+            this.label5.Text = "Treshold (%):";
             // 
             // button_outputAuto
             // 
@@ -327,9 +327,9 @@
             this.tabPage_manual.Location = new System.Drawing.Point(4, 22);
             this.tabPage_manual.Name = "tabPage_manual";
             this.tabPage_manual.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage_manual.Size = new System.Drawing.Size(168, 540);
+            this.tabPage_manual.Size = new System.Drawing.Size(168, 557);
             this.tabPage_manual.TabIndex = 0;
-            this.tabPage_manual.Text = "Manual";
+            this.tabPage_manual.Text = "Cropping";
             this.tabPage_manual.UseVisualStyleBackColor = true;
             // 
             // label10
